@@ -1,0 +1,5 @@
+target/
+*.mmdb
+Dockerfile
+.git
+.gitignore 
