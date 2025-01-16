@@ -11,7 +11,7 @@
 - 🔄 ASN（自治系统编号）信息
 - 🌐 支持 IPv4 和 IPv6 地址
 - 🚀 基于高性能 Axum web 框架
-- 🗺️ 多数据库支持（GeoCN.mmdb、GeoLite2-City.mmdb、GeoLite2-ASN.mmdb）
+- 🗺️ 使用数据库：GeoCN.mmdb、GeoLite2-City.mmdb、GeoLite2-ASN.mmdb
 - 🌐 RESTful API 接口
 - 🔍 自动域名解析（支持 A 和 AAAA 记录）
 - ⚡ 高性能：每秒可处理数万次请求
@@ -20,38 +20,13 @@
 ## 环境要求
 
 - Rust 2021 edition 或更高版本
-- MaxMind GeoIP2 数据库文件
-  - GeoCN.mmdb（中国精确位置数据）
-  - GeoLite2-City.mmdb（全球城市数据）
-  - GeoLite2-ASN.mmdb（ASN 信息数据）
-
-## 安装
-
-1. 克隆仓库：
-```bash
-git clone https://github.com/upteka/ipgeo-api-rust.git
-cd ipgeo-api-rust
-```
-
-2. 构建项目：
-```bash
-cargo build --release
-```
 
 ## 配置
 
 ### 环境变量
 
-- `MMDB_PATH`：MaxMind 数据库文件目录路径（默认：当前目录）
 - `HOST`：服务监听地址（默认：0.0.0.0）
 - `PORT`：服务端口（默认：8080）
-
-### 数据库文件
-
-请将以下数据库文件放置在 `MMDB_PATH` 指定的目录中：
-- `GeoCN.mmdb`
-- `GeoLite2-City.mmdb`
-- `GeoLite2-ASN.mmdb`
 
 ## 使用方法
 
@@ -62,11 +37,6 @@ cargo build --release
 ./target/release/ipgeo
 ```
 
-指定数据库路径：
-```bash
-MMDB_PATH=/path/to/mmdb ./target/release/ipgeo
-```
-
 自定义端口：
 ```bash
 PORT=3000 ./target/release/ipgeo
@@ -74,30 +44,70 @@ PORT=3000 ./target/release/ipgeo
 
 ### API 接口
 
-所有 API 接口都返回 JSON 格式的响应。
+所有 API 接口都返回 JSON 格式的响应。支持 IPv4、IPv6 地址和域名查询，自动解析域名的 A 和 AAAA 记录。
 
-1. **直接查询**
-   ```
-   GET /{ip或域名}
-   示例：GET /8.8.8.8
-   ```
+#### 1. 直接查询
+```http
+GET /{ip或域名}
+```
+最简单的查询方式，直接在路径中传入 IP 或域名。
 
-2. **API 路径查询**
-   ```
-   GET /api/{ip或域名}
-   示例：GET /api/google.com
-   ```
+示例：
+```bash
 
-3. **查询参数方式**
-   ```
-   GET /api?host={ip或域名}
-   示例：GET /api?host=1.1.1.1
-   ```
+# IPv4 查询
+curl "http://localhost:8080/8.8.8.8"
 
-4. **获取当前客户端信息**
-   ```
-   GET /
-   ```
+# IPv6 查询
+curl "http://localhost:8080/2001:4860:4860::8888"
+
+# 域名查询
+curl "http://localhost:8080/google.com"
+```
+
+#### 2. API 路径查询
+```http
+GET /api/{ip或域名}
+```
+带 API 前缀的标准 RESTful 接口。
+
+示例：
+```bash
+# IPv4 查询
+curl "http://localhost:8080/api/1.1.1.1"
+
+# 域名查询（自动解析）
+curl "http://localhost:8080/api/github.com"
+```
+
+#### 3. 查询参数方式
+```http
+GET /api?host={ip或域名}
+```
+使用查询参数的方式，适合需要 URL 编码的场景。
+
+示例：
+```bash
+# IPv4 查询
+curl "http://localhost:8080/api?host=1.1.1.1"
+
+# IPv6 查询（URL 编码）
+curl "http://localhost:8080/api?host=2001%3A4860%3A4860%3A%3A8888"
+
+# 域名查询
+curl "http://localhost:8080/api?host=cloudflare.com"
+```
+
+#### 4. 获取当前客户端信息
+```http
+GET /
+```
+获取发起请求的客户端 IP 地址信息。
+
+示例：
+```bash
+curl "http://localhost:8080/"
+```
 
 ### 响应示例
 
@@ -146,19 +156,42 @@ PORT=3000 ./target/release/ipgeo
 
 ## Docker 部署
 
-1. 构建镜像：
-```bash
-docker build -t ipgeo .
-```
+### 使用预构建镜像
 
-2. 运行容器：
+最简单的方式是使用预构建的 Docker 镜像，数据库文件会自动更新：
+
 ```bash
 docker run -d \
   --name ipgeo \
   -p 8080:8080 \
-  -v /path/to/mmdb:/app/data \
-  -e MMDB_PATH=/app/data \
-  ipgeo
+  tachy0nx/rust-ipgeo:latest
+```
+
+参数说明：
+- `-d`: 后台运行容器
+- `-p 8080:8080`: 端口映射，格式为 `主机端口:容器端口`
+
+验证和管理：
+```bash
+# 验证服务
+curl http://localhost:8080/1.1.1.1
+
+# 容器管理
+docker logs ipgeo    # 查看日志
+docker stop ipgeo    # 停止服务
+docker start ipgeo   # 启动服务
+docker restart ipgeo # 重启服务
+```
+
+自定义配置：
+```bash
+# 修改端口和监听地址
+docker run -d \
+  --name ipgeo \
+  -p 3000:8080 \
+  -e HOST=127.0.0.1 \
+  -e PORT=8080 \
+  tachy0nx/rust-ipgeo:latest
 ```
 
 ### Docker Compose
@@ -167,13 +200,9 @@ docker run -d \
 version: '3'
 services:
   ipgeo:
-    build: .
+    image: tachy0nx/rust-ipgeo:latest
     ports:
       - "8080:8080"
-    volumes:
-      - /path/to/mmdb:/app/data
-    environment:
-      - MMDB_PATH=/app/data
     restart: unless-stopped
 ```
 

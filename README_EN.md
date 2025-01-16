@@ -20,38 +20,13 @@ A high-performance IP geolocation service built with Rust, providing detailed ge
 ## Requirements
 
 - Rust 2021 edition or higher
-- MaxMind GeoIP2 database files
-  - GeoCN.mmdb (China precise location data)
-  - GeoLite2-City.mmdb (Global city database)
-  - GeoLite2-ASN.mmdb (ASN information)
-
-## Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/upteka/ipgeo-api-rust.git
-cd ipgeo-api-rust
-```
-
-2. Build the project:
-```bash
-cargo build --release
-```
 
 ## Configuration
 
 ### Environment Variables
 
-- `MMDB_PATH`: Directory path for MaxMind database files (default: current directory)
 - `HOST`: Service listening address (default: 0.0.0.0)
 - `PORT`: Service port (default: 8080)
-
-### Database Files
-
-Place the following database files in the directory specified by `MMDB_PATH`:
-- `GeoCN.mmdb`
-- `GeoLite2-City.mmdb`
-- `GeoLite2-ASN.mmdb`
 
 ## Usage
 
@@ -62,11 +37,6 @@ Basic start:
 ./target/release/ipgeo
 ```
 
-Specify database path:
-```bash
-MMDB_PATH=/path/to/mmdb ./target/release/ipgeo
-```
-
 Custom port:
 ```bash
 PORT=3000 ./target/release/ipgeo
@@ -74,30 +44,69 @@ PORT=3000 ./target/release/ipgeo
 
 ### API Endpoints
 
-All API endpoints return responses in JSON format.
+All API endpoints return responses in JSON format. Supports IPv4, IPv6 addresses and domain names, with automatic resolution of A and AAAA records.
 
-1. **Direct Query**
-   ```
-   GET /{ip or domain}
-   Example: GET /8.8.8.8
-   ```
+#### 1. Direct Query
+```http
+GET /{ip or domain}
+```
+The simplest query method, directly passing IP or domain in the path.
 
-2. **API Path Query**
-   ```
-   GET /api/{ip or domain}
-   Example: GET /api/google.com
-   ```
+Examples:
+```bash
+# IPv4 query
+curl "http://localhost:8080/8.8.8.8"
 
-3. **Query Parameter Method**
-   ```
-   GET /api?host={ip or domain}
-   Example: GET /api?host=1.1.1.1
-   ```
+# IPv6 query
+curl "http://localhost:8080/2001:4860:4860::8888"
 
-4. **Get Current Client Information**
-   ```
-   GET /
-   ```
+# Domain query
+curl "http://localhost:8080/google.com"
+```
+
+#### 2. API Path Query
+```http
+GET /api/{ip or domain}
+```
+Standard RESTful interface with API prefix.
+
+Examples:
+```bash
+# IPv4 query
+curl "http://localhost:8080/api/1.1.1.1"
+
+# Domain query (auto-resolution)
+curl "http://localhost:8080/api/github.com"
+```
+
+#### 3. Query Parameter Method
+```http
+GET /api?host={ip or domain}
+```
+Using query parameters, suitable for scenarios requiring URL encoding.
+
+Examples:
+```bash
+# IPv4 query
+curl "http://localhost:8080/api?host=1.1.1.1"
+
+# IPv6 query (URL encoded)
+curl "http://localhost:8080/api?host=2001%3A4860%3A4860%3A%3A8888"
+
+# Domain query
+curl "http://localhost:8080/api?host=cloudflare.com"
+```
+
+#### 4. Get Current Client Information
+```http
+GET /
+```
+Get information about the client IP address making the request.
+
+Example:
+```bash
+curl "http://localhost:8080/"
+```
 
 ### Response Example
 
@@ -146,19 +155,42 @@ Main dependencies include:
 
 ## Docker Deployment
 
-1. Build the image:
-```bash
-docker build -t ipgeo .
-```
+### Using Pre-built Image
 
-2. Run the container:
+The easiest way is to use the pre-built Docker image, database files will be updated automatically:
+
 ```bash
 docker run -d \
   --name ipgeo \
   -p 8080:8080 \
-  -v /path/to/mmdb:/app/data \
-  -e MMDB_PATH=/app/data \
-  ipgeo
+  tachy0nx/rust-ipgeo:latest
+```
+
+Parameter explanation:
+- `-d`: Run container in background
+- `-p 8080:8080`: Port mapping, format is `host_port:container_port`
+
+Verify and manage:
+```bash
+# Verify service
+curl http://localhost:8080/1.1.1.1
+
+# Container management
+docker logs ipgeo    # View logs
+docker stop ipgeo    # Stop service
+docker start ipgeo   # Start service
+docker restart ipgeo # Restart service
+```
+
+Custom configuration:
+```bash
+# Modify port and listening address
+docker run -d \
+  --name ipgeo \
+  -p 3000:8080 \
+  -e HOST=127.0.0.1 \
+  -e PORT=8080 \
+  tachy0nx/rust-ipgeo:latest
 ```
 
 ### Docker Compose
@@ -167,13 +199,9 @@ docker run -d \
 version: '3'
 services:
   ipgeo:
-    build: .
+    image: tachy0nx/rust-ipgeo:latest
     ports:
       - "8080:8080"
-    volumes:
-      - /path/to/mmdb:/app/data
-    environment:
-      - MMDB_PATH=/app/data
     restart: unless-stopped
 ```
 
