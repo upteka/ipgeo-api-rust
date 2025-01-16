@@ -143,15 +143,6 @@ curl "http://localhost:8080/"
 }
 ```
 
-## Dependencies
-
-Main dependencies include:
-- `axum 0.7` - Web framework
-- `tokio 1.x` - Async runtime
-- `maxminddb 0.24` - MaxMind DB reader
-- `serde 1.x` - Serialization framework
-- `tower 0.4` - HTTP service components
-- `serde_json 1.x` - JSON processing
 
 ## Docker Deployment
 
@@ -220,6 +211,60 @@ cargo build --release
 ```
 
 3. Use a load balancer (like Nginx) for reverse proxy
+
+## Performance Testing
+
+Using the oha tool for stress testing, test command:
+```bash
+oha -c 2000 -z 30s --urls-from-file urls.txt  # urls.txt contains a list of randomly generated IP addresses
+```
+
+Test results:
+
+```
+Summary:
+  Success rate: 100.00%
+  Total:        30.0589 secs
+  Slowest:      1.1063 secs
+  Fastest:      0.0003 secs
+  Average:      0.0361 secs
+  Requests/sec: 55326.4230
+
+  Total data:   390.71 MiB
+  Size/request: 246 B
+  Size/sec:     13.00 MiB
+
+Response time histogram:
+  0.000 [1]       |
+  0.111 [1655785] |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.221 [5059]    |
+  0.332 [0]       |
+  0.443 [0]       |
+  0.553 [737]     |
+  0.664 [258]     |
+  0.775 [0]       |
+  0.885 [0]       |
+  0.996 [0]       |
+  1.106 [543]     |
+
+Response time distribution:
+  10.00% in 0.0144 secs
+  25.00% in 0.0218 secs
+  50.00% in 0.0316 secs
+  75.00% in 0.0454 secs
+  90.00% in 0.0620 secs
+  95.00% in 0.0733 secs
+  99.00% in 0.0974 secs
+  99.90% in 0.1513 secs
+  99.99% in 1.0590 secs
+
+
+Details (average, fastest, slowest):
+  DNS+dialup:   0.5404 secs, 0.0007 secs, 1.0353 secs
+  DNS-lookup:   0.0000 secs, 0.0000 secs, 0.0001 secs
+
+Status code distribution:
+```
 
 ## License
 

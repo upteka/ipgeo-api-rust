@@ -4,9 +4,22 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-axum = { version = "0.7", features = ["tokio", "http1", "matched-path"] }
+axum = { version = "0.8", features = ["tokio", "http1", "matched-path"] }
+axum-macros = "0.5"
 tokio = { version = "1", features = ["full"] }
-tower = "0.4"
+tower = { version = "0.5", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 maxminddb = "0.24"
+moka = { version = "0.12", features = ["sync"] }
+futures = "0.3"
+parking_lot = "0.12"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+dashmap = "6.1"
+rand = "0.8"
+libc = "0.2"
+thiserror = "2.0"
+reqwest = { version = "0.12", features = ["json"] }
+lru = "0.12"
+string-interner = "0.18"

@@ -144,16 +144,6 @@ curl "http://localhost:8080/"
 }
 ```
 
-## 项目依赖
-
-主要依赖包括：
-- `axum 0.7` - Web 框架
-- `tokio 1.x` - 异步运行时
-- `maxminddb 0.24` - MaxMind DB 读取器
-- `serde 1.x` - 序列化框架
-- `tower 0.4` - HTTP 服务组件
-- `serde_json 1.x` - JSON 处理
-
 ## Docker 部署
 
 ### 使用预构建镜像
@@ -188,7 +178,7 @@ docker restart ipgeo # 重启服务
 # 修改端口和监听地址
 docker run -d \
   --name ipgeo \
-  -p 3000:8080 \
+  -p 8080:8080 \
   -e HOST=127.0.0.1 \
   -e PORT=8080 \
   tachy0nx/rust-ipgeo:latest
@@ -204,6 +194,64 @@ services:
     ports:
       - "8080:8080"
     restart: unless-stopped
+```
+
+## 性能测试
+
+使用 oha 工具进行压力测试，测试命令：
+```bash
+oha -c 2000 -z 30s --urls-from-file urls.txt  # urls.txt 包含随机生成IP 地址列表
+```
+
+测试结果如下：
+
+```
+Summary:
+  Success rate: 100.00%
+  Total:        30.0589 secs
+  Slowest:      1.1063 secs
+  Fastest:      0.0003 secs
+  Average:      0.0361 secs
+  Requests/sec: 55326.4230
+
+  Total data:   390.71 MiB
+  Size/request: 246 B
+  Size/sec:     13.00 MiB
+
+Response time histogram:
+  0.000 [1]       |
+  0.111 [1655785] |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.221 [5059]    |
+  0.332 [0]       |
+  0.443 [0]       |
+  0.553 [737]     |
+  0.664 [258]     |
+  0.775 [0]       |
+  0.885 [0]       |
+  0.996 [0]       |
+  1.106 [543]     |
+
+Response time distribution:
+  10.00% in 0.0144 secs
+  25.00% in 0.0218 secs
+  50.00% in 0.0316 secs
+  75.00% in 0.0454 secs
+  90.00% in 0.0620 secs
+  95.00% in 0.0733 secs
+  99.00% in 0.0974 secs
+  99.90% in 0.1513 secs
+  99.99% in 1.0590 secs
+
+
+Details (average, fastest, slowest):
+  DNS+dialup:   0.5404 secs, 0.0007 secs, 1.0353 secs
+  DNS-lookup:   0.0000 secs, 0.0000 secs, 0.0001 secs
+
+Status code distribution:
+  [200] 1662383 responses
+
+Error distribution:
+  [670] aborted due to deadline
 ```
 
 ## 性能优化建议
