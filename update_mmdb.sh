@@ -28,4 +28,4 @@ update_databases || exit 1
 ) &
 
 # 启动主程序并保持前台运行
-exec ./ipgeo 
+exec ./ipgeo "$@" 

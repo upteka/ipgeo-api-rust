@@ -1,0 +1,304 @@
+{
+    "patterns": {
+        "cloud": {
+            "keywords": ["alibaba", "aliyun", "tencent", "qcloud", "huawei", "hwclouds", "amazonaws", "azure", "google cloud", "oracle cloud", "digitalocean", "linode", "vultr", "cloudflare", "akamai", "fastly", "gcore", "ovh", "hetzner", "scaleway", "upcloud", "exoscale", "packet", "rackspace", "ibm cloud", "salesforce", "yandex", "naver", "kakao", "line", "bytedance", "baidu", "jd", "kingsoft", "ucloud", "qiniu", "netease", "volcengine", "edgecast", "verizon", "stackpath", "cdn77", "bunnycdn", "limelight", "level3", "imperva", "incapsula", "keycdn", "quantil", "cdnetworks", "cachefly", "highwinds", "chinanetcenter", "wangsu", "dnion", "fastweb", "chinacache"],
+            "type": "数据中心",
+            "info": {
+                "alibaba": "阿里云",
+                "aliyun": "阿里云",
+                "tencent": "腾讯云",
+                "qcloud": "腾讯云",
+                "huawei": "华为云",
+                "hwclouds": "华为云",
+                "amazonaws": "亚马逊云",
+                "azure": "微软云",
+                "google": "谷歌云",
+                "cloudflare": "Cloudflare",
+                "oracle": "甲骨文云",
+                "digitalocean": "DigitalOcean",
+                "linode": "Linode",
+                "vultr": "Vultr",
+                "ovh": "OVH",
+                "hetzner": "Hetzner",
+                "bytedance": "字节跳动",
+                "baidu": "百度云",
+                "jd": "京东云",
+                "kingsoft": "金山云",
+                "ucloud": "UCloud",
+                "qiniu": "七牛云",
+                "netease": "网易云",
+                "volcengine": "火山引擎",
+                "edgecast": "Edgecast CDN",
+                "verizon": "Verizon CDN",
+                "stackpath": "StackPath CDN",
+                "cdn77": "CDN77",
+                "bunnycdn": "BunnyCDN",
+                "limelight": "Limelight CDN",
+                "level3": "Level3 CDN",
+                "imperva": "Imperva CDN",
+                "incapsula": "Incapsula CDN",
+                "keycdn": "KeyCDN",
+                "quantil": "Quantil CDN",
+                "cdnetworks": "CDNetworks",
+                "cachefly": "CacheFly",
+                "highwinds": "HighWinds CDN",
+                "chinanetcenter": "网宿科技",
+                "wangsu": "网宿科技",
+                "dnion": "帝联科技",
+                "fastweb": "快网科技",
+                "chinacache": "蓝汛科技"
+            }
+        },
+        "isp": {
+            "keywords": ["chinanet", "telecom", "unicom", "cmnet", "mobile", "cernet", "education", "broadcast", "drpeng", "gwbn", "cstnet", "cnc", "cncnet", "uninet", "cmcc", "ctcc", "cucc", "cttnet", "bttnet", "gwbnet", "csnet", "ihep", "cas"],
+            "type": {
+                "chinanet": "电信网络",
+                "telecom": "电信网络",
+                "unicom": "联通网络",
+                "cmnet": "移动网络",
+                "mobile": "移动网络",
+                "cernet": "教育网络",
+                "education": "教育网络",
+                "broadcast": "广电网络",
+                "drpeng": "鹏博士",
+                "gwbn": "长城宽带",
+                "cstnet": "科技网",
+                "cnc": "联通网络",
+                "cncnet": "联通网络",
+                "uninet": "联通网络",
+                "cmcc": "移动网络",
+                "ctcc": "电信网络",
+                "cucc": "联通网络",
+                "cttnet": "铁通网络",
+                "bttnet": "广电网络",
+                "gwbnet": "长城宽带",
+                "csnet": "科技网",
+                "ihep": "科技网",
+                "cas": "科技网"
+            },
+            "info": {
+                "chinanet": "中国电信",
+                "telecom": "中国电信",
+                "unicom": "中国联通",
+                "cmnet": "中国移动",
+                "mobile": "中国移动",
+                "cernet": "教育网",
+                "education": "教育网",
+                "broadcast": "广电网",
+                "drpeng": "鹏博士",
+                "gwbn": "长城宽带",
+                "cstnet": "中国科技网",
+                "cnc": "中国联通",
+                "cncnet": "中国联通",
+                "uninet": "中国联通",
+                "cmcc": "中国移动",
+                "ctcc": "中国电信",
+                "cucc": "中国联通",
+                "cttnet": "中国铁通",
+                "bttnet": "广电网络",
+                "gwbnet": "长城宽带",
+                "csnet": "中国科技网",
+                "ihep": "中国科学院",
+                "cas": "中国科学院"
+            }
+        }
+    },
+    "asn_info": {
+        "4134": {
+            "name": "中国电信",
+            "type": "电信网络"
+        },
+        "4809": {
+            "name": "中国电信",
+            "type": "电信网络"
+        },
+        "4812": {
+            "name": "中国电信",
+            "type": "电信网络"
+        },
+        "4813": {
+            "name": "中国电信",
+            "type": "电信网络"
+        },
+        "4837": {
+            "name": "中国联通",
+            "type": "联通网络"
+        },
+        "4808": {
+            "name": "中国联通",
+            "type": "联通网络"
+        },
+        "9800": {
+            "name": "中国联通",
+            "type": "联通网络"
+        },
+        "9808": {
+            "name": "中国移动",
+            "type": "移动网络"
+        },
+        "9394": {
+            "name": "中国铁通",
+            "type": "移动网络"
+        },
+        "56040": {
+            "name": "中国移动",
+            "type": "移动网络"
+        },
+        "56041": {
+            "name": "中国移动",
+            "type": "移动网络"
+        },
+        "56042": {
+            "name": "中国移动",
+            "type": "移动网络"
+        },
+        "37963": {
+            "name": "阿里云",
+            "type": "数据中心"
+        },
+        "45102": {
+            "name": "阿里云",
+            "type": "数据中心"
+        },
+        "45090": {
+            "name": "腾讯云",
+            "type": "数据中心"
+        },
+        "132203": {
+            "name": "腾讯云",
+            "type": "数据中心"
+        },
+        "4538": {
+            "name": "中国教育网",
+            "type": "教育网络"
+        },
+        "24355": {
+            "name": "广电网络",
+            "type": "广电网络"
+        },
+        "24445": {
+            "name": "广电网络",
+            "type": "广电网络"
+        },
+        "58466": {
+            "name": "中国科技网",
+            "type": "科技网"
+        },
+        "7497": {
+            "name": "中国科学院",
+            "type": "科技网"
+        },
+        "4847": {
+            "name": "中国科学院",
+            "type": "科技网"
+        },
+        "4835": {
+            "name": "中国电信CN2",
+            "type": "电信网络"
+        },
+        "4816": {
+            "name": "中国电信CN2",
+            "type": "电信网络"
+        },
+        "9929": {
+            "name": "中国联通国际",
+            "type": "联通网络"
+        },
+        "10099": {
+            "name": "中国联通国际",
+            "type": "联通网络"
+        },
+        "134543": {
+            "name": "联通云",
+            "type": "数据中心"
+        },
+        "137687": {
+            "name": "华为云",
+            "type": "数据中心"
+        },
+        "136907": {
+            "name": "华为云",
+            "type": "数据中心"
+        },
+        "134765": {
+            "name": "百度云",
+            "type": "数据中心"
+        },
+        "55967": {
+            "name": "百度云",
+            "type": "数据中心"
+        },
+        "63582": {
+            "name": "京东云",
+            "type": "数据中心"
+        },
+        "56048": {
+            "name": "字节跳动",
+            "type": "数据中心"
+        },
+        "138421": {
+            "name": "七牛云",
+            "type": "数据中心"
+        },
+        "137718": {
+            "name": "UCloud",
+            "type": "数据中心"
+        },
+        "15133": {
+            "name": "Edgecast CDN",
+            "type": "数据中心"
+        },
+        "20940": {
+            "name": "Akamai CDN",
+            "type": "数据中心"
+        },
+        "54113": {
+            "name": "Fastly CDN",
+            "type": "数据中心"
+        },
+        "13335": {
+            "name": "Cloudflare CDN",
+            "type": "数据中心"
+        },
+        "16625": {
+            "name": "Akamai CDN",
+            "type": "数据中心"
+        },
+        "35994": {
+            "name": "Akamai CDN",
+            "type": "数据中心"
+        },
+        "12222": {
+            "name": "Akamai CDN",
+            "type": "数据中心"
+        },
+        "32787": {
+            "name": "Akamai CDN",
+            "type": "数据中心"
+        },
+        "22822": {
+            "name": "Limelight CDN",
+            "type": "数据中心"
+        },
+        "3356": {
+            "name": "Level3 CDN",
+            "type": "数据中心"
+        },
+        "19551": {
+            "name": "Incapsula CDN",
+            "type": "数据中心"
+        },
+        "19994": {
+            "name": "Rackspace CDN",
+            "type": "数据中心"
+        },
+        "34164": {
+            "name": "KeyCDN",
+            "type": "数据中心"
+        },
+        "58850": {
+            "name": "帝联科技",
+            "type": "数据中心"
+        }
+    }
+} 

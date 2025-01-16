@@ -14,11 +14,16 @@
 - 🗺️ 多数据库支持（GeoCN.mmdb、GeoLite2-City.mmdb、GeoLite2-ASN.mmdb）
 - 🌐 RESTful API 接口
 - 🔍 自动域名解析（支持 A 和 AAAA 记录）
+- ⚡ 高性能：每秒可处理数万次请求
+- 🐳 Docker 支持，便于部署
 
 ## 环境要求
 
 - Rust 2021 edition 或更高版本
-- MaxMind GeoIP2 数据库（GeoCN.mmdb、GeoLite2-City.mmdb、GeoLite2-ASN.mmdb）
+- MaxMind GeoIP2 数据库文件
+  - GeoCN.mmdb（中国精确位置数据）
+  - GeoLite2-City.mmdb（全球城市数据）
+  - GeoLite2-ASN.mmdb（ASN 信息数据）
 
 ## 安装
 
@@ -35,86 +40,158 @@ cargo build --release
 
 ## 配置
 
-服务会在 `MMDB_PATH` 环境变量指定的目录中查找 MaxMind 数据库文件。如果未设置，默认使用当前目录。
+### 环境变量
 
-需要的数据库文件：
-- `GeoCN.mmdb` - 中国地区数据库
-- `GeoLite2-City.mmdb` - 全球城市数据库
-- `GeoLite2-ASN.mmdb` - ASN 信息数据库
+- `MMDB_PATH`：MaxMind 数据库文件目录路径（默认：当前目录）
+- `HOST`：服务监听地址（默认：0.0.0.0）
+- `PORT`：服务端口（默认：8080）
+
+### 数据库文件
+
+请将以下数据库文件放置在 `MMDB_PATH` 指定的目录中：
+- `GeoCN.mmdb`
+- `GeoLite2-City.mmdb`
+- `GeoLite2-ASN.mmdb`
 
 ## 使用方法
 
-1. 启动服务：
+### 启动服务
+
+基本启动：
+```bash
+./target/release/ipgeo
+```
+
+指定数据库路径：
 ```bash
 MMDB_PATH=/path/to/mmdb ./target/release/ipgeo
 ```
 
-2. 服务提供以下 API 接口：
+自定义端口：
+```bash
+PORT=3000 ./target/release/ipgeo
+```
 
-- 通过查询参数查询：
-  ```
-  GET /?host={ip或域名}
-  ```
+### API 接口
 
-- 通过路径参数查询：
-  ```
-  GET /{ip或域名}
-  ```
+所有 API 接口都返回 JSON 格式的响应。
 
-对于域名查询，服务会自动：
-1. 解析 A 记录（IPv4）和 AAAA 记录（IPv6）
-2. 查询每个解析到的 IP 地址的地理位置信息
-3. 在单个响应中返回组合结果
+1. **直接查询**
+   ```
+   GET /{ip或域名}
+   示例：GET /8.8.8.8
+   ```
+
+2. **API 路径查询**
+   ```
+   GET /api/{ip或域名}
+   示例：GET /api/google.com
+   ```
+
+3. **查询参数方式**
+   ```
+   GET /api?host={ip或域名}
+   示例：GET /api?host=1.1.1.1
+   ```
+
+4. **获取当前客户端信息**
+   ```
+   GET /
+   ```
 
 ### 响应示例
 
 ```json
 {
-  "host": "example.com",
-  "ips": [
-    {
-      "ip": "93.184.216.34",
-      "as": {
-        "number": 15133,
-        "name": "EdgeCast Networks",
-        "info": ""
-      },
-      "addr": "93.184.216.0/24",
-      "location": {
-        "latitude": 34.0655,
-        "longitude": -118.2389
-      },
-      "country": {
-        "code": "US",
-        "name": "United States"
-      },
-      "registered_country": {
-        "code": "US",
-        "name": "United States"
-      },
-      "regions": ["California", "Los Angeles"],
-      "regions_short": ["CA", "LA"]
-    }
-  ]
+    "ip": "223.5.5.5",
+    "as": {
+        "number": 37963,
+        "name": "Hangzhou Alibaba Advertising Co.,Ltd.",
+        "info": "阿里云"
+    },
+    "addr": "223.4.0.0/14",
+    "location": {
+        "latitude": 30.2943,
+        "longitude": 120.1663
+    },
+    "country": {
+        "code": "CN",
+        "name": "中国"
+    },
+    "registered_country": {
+        "code": "CN",
+        "name": "中国"
+    },
+    "regions": [
+        "浙江省",
+        "杭州市"
+    ],
+    "regions_short": [
+        "浙江",
+        "杭州"
+    ],
+    "type": "数据中心"
 }
 ```
 
 ## 项目依赖
 
-- `axum` - Web 框架
-- `tokio` - 异步运行时
-- `maxminddb` - MaxMind DB 读取器
-- `serde` - 序列化框架
-- `serde_json` - JSON 支持
+主要依赖包括：
+- `axum 0.7` - Web 框架
+- `tokio 1.x` - 异步运行时
+- `maxminddb 0.24` - MaxMind DB 读取器
+- `serde 1.x` - 序列化框架
+- `tower 0.4` - HTTP 服务组件
+- `serde_json 1.x` - JSON 处理
 
-## Docker 支持
+## Docker 部署
 
-项目包含 Docker 支持，便于部署。构建和运行命令：
-
+1. 构建镜像：
 ```bash
 docker build -t ipgeo .
-docker run -p 3000:3000 -v /path/to/mmdb:/mmdb -e MMDB_PATH=/mmdb ipgeo
 ```
+
+2. 运行容器：
+```bash
+docker run -d \
+  --name ipgeo \
+  -p 8080:8080 \
+  -v /path/to/mmdb:/app/data \
+  -e MMDB_PATH=/app/data \
+  ipgeo
+```
+
+### Docker Compose
+
+```yaml
+version: '3'
+services:
+  ipgeo:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - /path/to/mmdb:/app/data
+    environment:
+      - MMDB_PATH=/app/data
+    restart: unless-stopped
+```
+
+## 性能优化建议
+
+1. 使用生产环境构建：
+```bash
+cargo build --release
+```
+
+2. 调整系统限制：
+```bash
+# /etc/security/limits.conf
+* soft nofile 65535
+* hard nofile 65535
+```
+
+3. 使用负载均衡器（如 Nginx）进行反向代理
 
 ## 开源协议
 
@@ -122,4 +199,8 @@ docker run -p 3000:3000 -v /path/to/mmdb:/mmdb -e MMDB_PATH=/mmdb ipgeo
 
 ## 贡献
 
-欢迎提交贡献！请随时向 [GitHub 仓库](https://github.com/upteka/ipgeo-api-rust) 提交 Pull Request。 
+欢迎提交贡献！请随时向 [GitHub 仓库](https://github.com/upteka/ipgeo-api-rust) 提交 Pull Request。
+
+## 问题反馈
+
+如果您发现任何问题或有改进建议，请在 [GitHub Issues](https://github.com/upteka/ipgeo-api-rust/issues) 页面提交。 
