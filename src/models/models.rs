@@ -57,6 +57,8 @@ pub enum IpGeoError {
     IoError(#[from] std::io::Error),
     #[error("IP parse error: {0}")]
     ParseError(#[from] AddrParseError),
+    #[error("DNS resolution timeout")]
+    TimeoutError,
 }
 
 impl axum::response::IntoResponse for IpGeoError {
@@ -70,7 +72,7 @@ impl axum::response::IntoResponse for IpGeoError {
             IpGeoError::ResolveError => (
                 axum::http::StatusCode::BAD_REQUEST,
                 "RESOLVE_ERROR",
-                "无法解析域名".to_string(),
+                "无法解析域名，请检查域名是否正确".to_string(),
             ),
             IpGeoError::IoError(err) => (
                 axum::http::StatusCode::INTERNAL_SERVER_ERROR,
@@ -81,6 +83,11 @@ impl axum::response::IntoResponse for IpGeoError {
                 axum::http::StatusCode::BAD_REQUEST,
                 "PARSE_ERROR",
                 format!("IP解析错误: {}", err),
+            ),
+            IpGeoError::TimeoutError => (
+                axum::http::StatusCode::REQUEST_TIMEOUT,
+                "TIMEOUT_ERROR",
+                "域名解析超时，请稍后重试".to_string(),
             ),
         };
         

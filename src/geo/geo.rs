@@ -244,17 +244,94 @@ pub async fn get_ip_info(ip_str: &str) -> Result<IpInfo, IpGeoError> {
 }
 
 pub async fn resolve_host(host: &str) -> Result<IpAddr, IpGeoError> {
-    // 如果输入已经是IP地址，直接返回
+    // 首先验证是否为有效的IP地址格式
     if let Ok(ip) = host.parse() {
+        // 验证IP地址的有效性
+        match ip {
+            IpAddr::V4(ipv4) => {
+                let octets = ipv4.octets();
+                // 检查是否为有效的公网IP地址
+                if octets[0] == 0 || // 0.0.0.0/8
+                   octets == [255, 255, 255, 255] || // 广播地址
+                   octets == [0, 0, 0, 0] || // 未指定地址
+                   (octets[0] == 192 && octets[1] == 0 && octets[2] == 2) || // 文档地址
+                   (octets[0] == 198 && octets[1] == 51 && octets[2] == 100) || // 文档地址
+                   (octets[0] == 203 && octets[1] == 0 && octets[2] == 113) // 文档地址
+                {
+                    return Err(IpGeoError::InvalidIp(format!("无效的IPv4地址: {}", host)));
+                }
+            },
+            IpAddr::V6(ipv6) => {
+                let segments = ipv6.segments();
+                if segments == [0, 0, 0, 0, 0, 0, 0, 0] || // 未指定地址
+                   (segments[0] == 0x2001 && segments[1] == 0xdb8) // 文档地址
+                {
+                    return Err(IpGeoError::InvalidIp(format!("无效的IPv6地址: {}", host)));
+                }
+            }
+        }
         return Ok(ip);
     }
     
-    // 否则进行DNS解析
-    let addr = lookup_host(format!("{}:0", host))
-        .await
-        .map_err(|_| IpGeoError::ResolveError)?
-        .next()
-        .ok_or(IpGeoError::ResolveError)?;
+    // 验证域名格式
+    if !is_valid_domain(host) {
+        return Err(IpGeoError::ResolveError);
+    }
     
-    Ok(addr.ip())
+    // 如果是有效域名，尝试解析
+    match tokio::time::timeout(
+        std::time::Duration::from_secs(1), // 设置1秒超时
+        lookup_host(format!("{}:0", host))
+    ).await {
+        Ok(Ok(mut addrs)) => {
+            // 优先返回IPv4地址
+            while let Some(addr) = addrs.next() {
+                match addr.ip() {
+                    IpAddr::V4(_) => return Ok(addr.ip()),
+                    _ => continue,
+                }
+            }
+            // 如果没有IPv4地址，返回第一个IPv6地址
+            addrs.next()
+                .map(|addr| addr.ip())
+                .ok_or(IpGeoError::ResolveError)
+        },
+        Ok(Err(_)) => Err(IpGeoError::ResolveError),
+        Err(_) => Err(IpGeoError::TimeoutError),
+    }
+}
+
+/// 检查是否为有效的域名格式
+fn is_valid_domain(host: &str) -> bool {
+    // 域名的基本验证规则
+    // 1. 长度在1-253之间
+    if host.len() < 1 || host.len() > 253 {
+        return false;
+    }
+    
+    // 2. 只包含字母、数字、点和连字符
+    if !host.chars().all(|c| c.is_ascii_alphanumeric() || c == '.' || c == '-') {
+        return false;
+    }
+    
+    // 3. 不能以点或连字符开始或结束
+    if host.starts_with('.') || host.starts_with('-') || 
+       host.ends_with('.') || host.ends_with('-') {
+        return false;
+    }
+    
+    // 4. 至少包含一个点（排除纯数字的情况）
+    if !host.contains('.') || host.chars().all(|c| c.is_ascii_digit() || c == '.') {
+        return false;
+    }
+    
+    // 5. 每个标签（点之间的部分）长度在1-63之间
+    let labels: Vec<&str> = host.split('.').collect();
+    for label in labels {
+        if label.len() < 1 || label.len() > 63 {
+            return false;
+        }
+    }
+    
+    true
 } 
