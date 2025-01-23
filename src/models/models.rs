@@ -61,29 +61,39 @@ pub enum IpGeoError {
 
 impl axum::response::IntoResponse for IpGeoError {
     fn into_response(self) -> axum::response::Response {
-        let (status, message) = match self {
+        let (status, error_type, message) = match self {
             IpGeoError::InvalidIp(ip) => (
                 axum::http::StatusCode::BAD_REQUEST,
-                format!("Invalid IP address: {}", ip),
+                "INVALID_IP",
+                format!("无效的IP地址: {}", ip),
             ),
             IpGeoError::ResolveError => (
                 axum::http::StatusCode::BAD_REQUEST,
-                "Failed to resolve hostname".to_string(),
+                "RESOLVE_ERROR",
+                "无法解析域名".to_string(),
             ),
             IpGeoError::IoError(err) => (
                 axum::http::StatusCode::INTERNAL_SERVER_ERROR,
-                format!("IO error: {}", err),
+                "IO_ERROR",
+                format!("IO错误: {}", err),
             ),
             IpGeoError::ParseError(err) => (
                 axum::http::StatusCode::BAD_REQUEST,
-                format!("IP parse error: {}", err),
+                "PARSE_ERROR",
+                format!("IP解析错误: {}", err),
             ),
         };
         
-        axum::response::Response::builder()
-            .status(status)
-            .header("Content-Type", "text/plain")
-            .body(message.into())
-            .unwrap()
+        let body = serde_json::json!({
+            "code": status.as_u16(),
+            "error": error_type,
+            "message": message
+        });
+        
+        (
+            status,
+            [(axum::http::header::CONTENT_TYPE, "application/json; charset=utf-8")],
+            axum::Json(body)
+        ).into_response()
     }
 } 

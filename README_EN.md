@@ -105,7 +105,7 @@ Get information about the client IP address making the request.
 
 Example:
 ```bash
-curl "http://localhost:8080/"
+curl "http://localhost:8080/223.5.5.5"
 ```
 
 ### Response Example

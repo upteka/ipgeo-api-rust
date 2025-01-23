@@ -746,6 +746,7 @@ dependencies = [
  "lru",
  "maxminddb",
  "moka",
+ "once_cell",
  "parking_lot",
  "rand",
  "reqwest",

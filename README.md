@@ -106,7 +106,7 @@ GET /
 
 示例：
 ```bash
-curl "http://localhost:8080/"
+curl "http://localhost:8080/223.5.5.5"
 ```
 
 ### 响应示例

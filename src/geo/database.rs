@@ -104,8 +104,20 @@ impl DatabaseManager {
             };
 
             if should_update {
-                if let Err(e) = self.download_database(db.url, &db_path).await {
-                    info!("Failed to download {}: {}", db.name, e);
+                if let Ok(()) = self.download_database(db.url, &db_path).await {
+                    // 下载成功后重新加载数据库
+                    let db_type = match db.name {
+                        "GeoLite2-ASN.mmdb" => "ASN",
+                        "GeoCN.mmdb" => "GeoCN",
+                        "GeoLite2-City.mmdb" => "City",
+                        _ => continue,
+                    };
+                    
+                    if let Err(e) = super::geo::reload_database(db_type, &db_path) {
+                        info!("Failed to reload {} database: {}", db_type, e);
+                    }
+                } else {
+                    info!("Failed to download {}", db.name);
                 }
             }
         }

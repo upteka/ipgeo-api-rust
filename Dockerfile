@@ -50,16 +50,28 @@ RUN --mount=type=cache,target=/usr/local/cargo/registry \
     cp target/release/ipgeo /usr/local/bin/ && \
     strip /usr/local/bin/ipgeo
 
-FROM alpine:3.19
+FROM alpine:latest
 
 # 只安装必要的运行时依赖
-RUN apk add --no-cache ca-certificates file
+RUN apk add --no-cache ca-certificates
+
+# 创建非root用户
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 COPY --from=builder /usr/local/bin/ipgeo /usr/local/bin/
-COPY data /app/data/
+
+RUN mkdir -p /app/data
+COPY data/asn_info.json /app/data/
+
+# 设置目录权限
+RUN chown -R appuser:appgroup /app && \
+    chmod -R 755 /app
 
 WORKDIR /app
 ENV RUST_LOG=info
+
+# 切换到非root用户
+USER appuser
 
 EXPOSE 3000
 CMD ["ipgeo"] 
